@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UProfiler</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      width: 300px;
+      padding: 20px;
+    }
+
+    #url-display {
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 8px 15px;               
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    pre {
+      white-space: pre-wrap;
+    }
+
+    input[type="text"] {
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 5px;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+
+<body>
+  <h4>
+    <img src="icon.png" alt="UProfiler" style="width: 30px; height: 30px; vertical-align: middle;"> &nbsp;
+    Welcome to UProfiler
+  </h4>
+  <div id="login-form">
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button id="login-button">Login</button>
+    <div id="login-error" style="color: rgb(255, 0, 0);"></div>
+  </div>
+
+  <div id="scraper-content" style="display: none;">
+    <!-- Add Logout button -->
+    <button id="logout-button">Logout</button>
+    <!-- create a div with id role-details -->
+    <br></br>
+    <div id="dvContainer"></div>
+    <br />
+    <div id="roleSelected" style="display: none;"></div>
+    <br></br>
+    <!-- Add Drop dow for selecteing wether CV is open To work or simple -->
+    <select id="cvType">
+      <option value="openToWork">Open To Work</option>
+      <option value="simple">Simple</option>
+    </select>
+    <br></br>
+    <div id="url-display"
+      style="border: 1px solid; border-radius: 5px; background-color: #0056b3; color: #fff; padding: 15px;">
+    </div>
+    <div id="input-fields">
+      <input type="text" id="business-email" placeholder="Business Email" required>
+      <input type="text" id="personal-email" placeholder="Personal Email">
+      <input type="text" id="work-email" placeholder="Work Email">
+      <input type="text" id="business-phone" placeholder="Business Phone Number">
+      <input type="text" id="personal-phone" placeholder="Personal Phone Number">
+      <input type="text" id="work-phone" placeholder="Work Phone Number">
+    </div>
+
+
+    <button id="fetch-button">Recruiter Profile</button>
+    <!-- my code akash -->
+    <button id="public-profile">Public Profile</button>
+    <!-- my code akash -->
+    <br></br>
+    <button id="download-button" class="p4">Move to CRM</button>
+    <div id="response"></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+
+</html>
