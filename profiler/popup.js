@@ -12,20 +12,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const crm_api_url = 'http://localhost:5000/api/extension';
     loginForm.style.display = 'block'; // Show login form initially
     scraperContent.style.display = 'none'; // Hide scraper content initially
-    const cvType = document.getElementById('cvType');
 
-    // // // prevent copy paste
-    // document.addEventListener('copy', function (e) {
-    //     e.preventDefault();
-    // });
-    // // prevent right click
-    // document.addEventListener('contextmenu', function (e) {
-    //     e.preventDefault();
-    // });
-    // // prevent selection of text
-    // document.addEventListener('selectstart', function (e) {
-    //     e.preventDefault();
-    // });
+    // // prevent copy paste
+    document.addEventListener('copy', function (e) {
+        e.preventDefault();
+    });
+    // prevent right click
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+    });
+    // prevent selection of text
+    document.addEventListener('selectstart', function (e) {
+        e.preventDefault();
+    });
 
     // if user is already logged in, show scraper content
     const userId = parseInt(localStorage.getItem('userId'));
@@ -88,8 +87,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     roleSelectedDiv.style.display = 'block';
                     // set fontsize
                     roleSelectedDiv.style.fontSize = '11px';
-                    roleSelectedDiv.innerHTML = `Role: ${selectedRoleData.title} &nbsp; (${selectedRoleData.location})`;
                     selectedRoleId = selectedRoleData.id;
+                    roleSelectedDiv.innerHTML = `Role: ${selectedRoleData.title} &nbsp; (${selectedRoleData.location})`;
                 });
             })
             .catch(error => {
@@ -109,10 +108,11 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     })
 
+    console.log("hjsjfbsdk",selectedRoleId)
     // Login function
     async function performLogin(username, password) {
         // Call login API
-        const api_url = 'http://localhost:5000/api/extension/extensionLogin'
+        const api_url = `${crm_api_url}/extensionLogin`
 
         try {
             const response = await fetch(api_url, {
@@ -164,9 +164,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     roleSelectedDiv.style.display = 'block';
                     // set fontsize
                     roleSelectedDiv.style.fontSize = '11px';
+                    selectedRoleId = selectedRoleData.id;
                     roleSelectedDiv.innerHTML = `Role: ${selectedRoleData.title} &nbsp; (${selectedRoleData.location})`;
-                    selectedRoleId = selectedRoleData.id;
-                    selectedRoleId = selectedRoleData.id;
                 });
                 
                 // HTTP status code is in the range 200-299
@@ -445,7 +444,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // my code akash
 
-    console.log("kjsdgfsdfsdf",selectedRoleId)
+
 
     moveTocrm.addEventListener('click', function () {
         // post data to server
