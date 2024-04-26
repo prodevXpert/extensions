@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const loginForm = document.getElementById('login-form');
     const scraperContent = document.getElementById('scraper-content');
     const loginError = document.getElementById('login-error');
-    const logoutButton = document.getElementById('logout-button');
+    // const logoutButton = document.getElementById('logout-button');
     let selectedRoleData = null;
     let selectedRoleId = null;
     const scrapingURL = 'https://864245efd9fdd49e8c8c5b2d1d6493d7.loophole.site'
@@ -14,17 +14,17 @@ document.addEventListener('DOMContentLoaded', function () {
     scraperContent.style.display = 'none'; // Hide scraper content initially
     let currentUrl = null;
     // // // prevent copy paste
-    // document.addEventListener('copy', function (e) {
-    //     e.preventDefault();
-    // });
-    // // prevent right click
-    // document.addEventListener('contextmenu', function (e) {
-    //     e.preventDefault();
-    // });
-    // // prevent selection of text
-    // document.addEventListener('selectstart', function (e) {
-    //     e.preventDefault();
-    // });
+    document.addEventListener('copy', function (e) {
+        e.preventDefault();
+    });
+    // prevent right click
+    document.addEventListener('contextmenu', function (e) {
+        e.preventDefault();
+    });
+    // prevent selection of text
+    document.addEventListener('selectstart', function (e) {
+        e.preventDefault();
+    });
 
     // if user is already logged in, show scraper content
     const userId = parseInt(localStorage.getItem('userId'));
@@ -65,7 +65,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Add options to the DropDown element
                 roleOptions.forEach(role => {
                     var option = document.createElement("option");
-                    option.innerHTML = role.title;
+                    option.innerHTML =
+                      role.clientNumber + " - " + role.title + " - " + role.location;
                     option.value = role.title;
                     dropdown.options.add(option);
                 });
@@ -88,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     // set fontsize
                     roleSelectedDiv.style.fontSize = '11px';
                     selectedRoleId = selectedRoleData?.id;
-                    roleSelectedDiv.innerHTML = `Role: ${selectedRoleData?.title} &nbsp; (${selectedRoleData?.location})`;
+                    roleSelectedDiv.innerHTML = `Client ${selectedRoleData?.clientNumber}  ${selectedRoleData?.title} ${selectedRoleData?.location}`;
                 });
             })
             .catch(error => {
@@ -142,7 +143,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Add options to the DropDown element
                 roleOptions.forEach(role => {
                     var option = document.createElement("option");
-                    option.innerHTML = role.title;
+                    option.innerHTML =
+                    role.clientNumber + " - " + role.title + " - " + role.location;
                     option.value = role.title;
                     dropdown.options.add(option);
                 });
@@ -165,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     // set fontsize
                     roleSelectedDiv.style.fontSize = '11px';
                     selectedRoleId = selectedRoleData.id;
-                    roleSelectedDiv.innerHTML = `Role: ${selectedRoleData.title} &nbsp; (${selectedRoleData.location})`;
+                    roleSelectedDiv.innerHTML = `Client ${selectedRoleData?.clientNumber}  ${selectedRoleData?.title} ${selectedRoleData?.location}`;
                 });
                 
                 // HTTP status code is in the range 200-299
@@ -187,12 +189,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // implement logout functionality
-    logoutButton.addEventListener('click', () => {
-        localStorage.removeItem('userId');
-        loginForm.style.display = 'block'; // Show login form
-        scraperContent.style.display = 'none'; // Hide scraper content
-    });
+    // // implement logout functionality
+    // logoutButton.addEventListener('click', () => {
+    //     localStorage.removeItem('userId');
+    //     loginForm.style.display = 'block'; // Show login form
+    //     scraperContent.style.display = 'none'; // Hide scraper content
+    // });
 
     const urlDisplay = document.getElementById('url-display');
     const fetchButton = document.getElementById('fetch-button');
