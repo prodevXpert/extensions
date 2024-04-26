@@ -8,23 +8,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const logoutButton = document.getElementById('logout-button');
     let selectedRoleData = null;
     let selectedRoleId = null;
-    const scrapingURL = 'https://f3cf-182-176-99-238.ngrok-free.app'
-    const crm_api_url = 'http://localhost:5000/api/extension';
+    const scrapingURL = 'https://864245efd9fdd49e8c8c5b2d1d6493d7.loophole.site'
+    const crm_api_url = 'https://745a-182-176-99-238.ngrok-free.app/api/extension';
     loginForm.style.display = 'block'; // Show login form initially
     scraperContent.style.display = 'none'; // Hide scraper content initially
-
-    // // prevent copy paste
-    document.addEventListener('copy', function (e) {
-        e.preventDefault();
-    });
-    // prevent right click
-    document.addEventListener('contextmenu', function (e) {
-        e.preventDefault();
-    });
-    // prevent selection of text
-    document.addEventListener('selectstart', function (e) {
-        e.preventDefault();
-    });
+    let currentUrl = null;
+    // // // prevent copy paste
+    // document.addEventListener('copy', function (e) {
+    //     e.preventDefault();
+    // });
+    // // prevent right click
+    // document.addEventListener('contextmenu', function (e) {
+    //     e.preventDefault();
+    // });
+    // // prevent selection of text
+    // document.addEventListener('selectstart', function (e) {
+    //     e.preventDefault();
+    // });
 
     // if user is already logged in, show scraper content
     const userId = parseInt(localStorage.getItem('userId'));
@@ -81,14 +81,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Add event listener to the dropdown
                 dropdown.addEventListener('change', async function () {
                     const selectedRole = dropdown.options[dropdown.selectedIndex].value;
-                    selectedRoleData = roleOptions.find(role => role.title === selectedRole);
+                    selectedRoleData = roleOptions.find(role => role?.title === selectedRole);
                     // make roleSelected div visible and populate the data
                     const roleSelectedDiv = document.getElementById('roleSelected');
                     roleSelectedDiv.style.display = 'block';
                     // set fontsize
                     roleSelectedDiv.style.fontSize = '11px';
-                    selectedRoleId = selectedRoleData.id;
-                    roleSelectedDiv.innerHTML = `Role: ${selectedRoleData.title} &nbsp; (${selectedRoleData.location})`;
+                    selectedRoleId = selectedRoleData?.id;
+                    roleSelectedDiv.innerHTML = `Role: ${selectedRoleData?.title} &nbsp; (${selectedRoleData?.location})`;
                 });
             })
             .catch(error => {
@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', function () {
     publicprofile.addEventListener('click', function () {
         chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
             const currentTab = tabs[0];
-            const currentUrl = currentTab.url;
+            currentUrl = currentTab.url;
             urlDisplay.textContent = 'Profile URL: ' + currentUrl;
 
             // Check if the URL is a valid LinkedIn profile URL
@@ -455,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // get the selected option from select id of cvType
         const cvType = document.getElementById('cvType');
         const selectedCVType = cvType.options[cvType.selectedIndex].value;
-        const url = urlDisplay.textContent;
+        const url = currentUrl;
         const payload = {
             profile_link: url,
             personalEmail: personalEmailInput.value,
@@ -467,11 +467,11 @@ document.addEventListener('DOMContentLoaded', function () {
             LIStatus: true,
             LIRejectionReason: "",
             profileHTML: responseDiv.innerHTML,
-            resourcerId: selectedRoleId,
-            roleId: 2
+            resourcerId: userId,
+            roleId: selectedRoleId
         }
 
-        fetch('http://localhost:5000/api/extension/addDataToLIProfile', {
+        fetch(`${crm_api_url}/addDataToLIProfile`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
