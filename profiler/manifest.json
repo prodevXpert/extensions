@@ -3,7 +3,7 @@
   "name": "UProfiler",
   "version": "1.0",
   "description": "A simple extension to help you download LI profile as CV.",
-  "permissions": ["activeTab", "storage", "webRequest", "webRequestBlocking"],
+  "permissions": ["activeTab"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
