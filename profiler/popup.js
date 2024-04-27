@@ -13,18 +13,19 @@ document.addEventListener('DOMContentLoaded', function () {
     loginForm.style.display = 'block'; // Show login form initially
     scraperContent.style.display = 'none'; // Hide scraper content initially
     let currentUrl = null;
+    let public_rec_url=null;
     // // // prevent copy paste
-    document.addEventListener('copy', function (e) {
-        e.preventDefault();
-    });
-    // prevent right click
-    document.addEventListener('contextmenu', function (e) {
-        e.preventDefault();
-    });
-    // prevent selection of text
-    document.addEventListener('selectstart', function (e) {
-        e.preventDefault();
-    });
+    // document.addEventListener('copy', function (e) {
+    //     e.preventDefault();
+    // });
+    // // prevent right click
+    // document.addEventListener('contextmenu', function (e) {
+    //     e.preventDefault();
+    // });
+    // // prevent selection of text
+    // document.addEventListener('selectstart', function (e) {
+    //     e.preventDefault();
+    // });
 
     // if user is already logged in, show scraper content
     const userId = parseInt(localStorage.getItem('userId'));
@@ -216,6 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Function to generate CV HTML from API response data
     function generateCV_for_rec(profileData) {
         fileName = profileData.name;
+        public_rec_url=profileData.public_profile_url;
         let html = `
             <div class="cv">
                 <h2>${profileData.name}</h2>
@@ -235,14 +237,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 <h3>Experience</h3>
                 <ul>
         `;
-        profileData.experience.forEach(experience => {
+        profileData.experience.forEach((experience,index) => {
             html += `
                 <li>
-                    <strong>${experience[0]}</strong> -
-                    ${experience[1]} (${experience[2]}) - 
-                    ${experience[3]} 
-                    ${experience[4]}
-                    ${experience[5]}
+                    <strong>${experience[index]}</strong> 
                 </li>
             `;
         });
@@ -272,6 +270,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function generateCV_for_pub(profileData) {
         fileName = profileData.name;
+        // <p><strong>Email (Work):</strong> ${workEmailInput.value}</p>
+        // <p><strong>Phone (Work):</strong> ${workPhoneInput.value}</p>
         let html = `
             <div class="cv">
                 <h2>${profileData.name}</h2>
@@ -279,8 +279,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 <p><strong>Phone (Business):</strong> ${phoneInput.value}</p>
                 <p><strong>Email (Personal):</strong> ${personalEmailInput.value}</p>
                 <p><strong>Phone (Personal):</strong> ${personalPhoneInput.value}</p>
-                <p><strong>Email (Work):</strong> ${workEmailInput.value}</p>
-                <p><strong>Phone (Work):</strong> ${workPhoneInput.value}</p>
                 <p><strong>Location:</strong> ${profileData.location}</p>
                 <p><strong>Headlines:</strong> ${profileData.headlines}</p>
                 <p><strong>About:</strong></p>
@@ -358,19 +356,19 @@ document.addEventListener('DOMContentLoaded', function () {
             const currentUrl = currentTab.url;
             urlDisplay.textContent = 'Profile URL: ' + currentUrl;
 
-            // Check if the URL is a valid LinkedIn profile URL
-            if (!isValidLinkedInUrl(currentUrl)) {
-                responseDiv.innerText = 'Error: This is not a valid LinkedIn profile URL.';
-                return;
-            }
+            // // Check if the URL is a valid LinkedIn profile URL
+            // if (!isValidLinkedInUrl(currentUrl)) {
+            //     responseDiv.innerText = 'Error: This is not a valid LinkedIn profile URL.';
+            //     return;
+            // }
 
-            const email = emailInput.value.trim();
-            const phone = phoneInput.value.trim();
+            // const email = emailInput.value.trim();
+            // const phone = phoneInput.value.trim();
 
-            if (!validateEmail(email)) {
-                responseDiv.innerText = 'Error: Please enter a valid email address.';
-                return;
-            }
+            // if (!validateEmail(email)) {
+            //     responseDiv.innerText = 'Error: Please enter a valid email address.';
+            //     return;
+            // }
 
             fetch(`${scrapingURL}/linkedinRecruiter`, {
                 method: 'POST',
@@ -459,19 +457,19 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedCVType = cvType.options[cvType.selectedIndex].value;
         const url = currentUrl;
         const payload = {
-            profile_link: url,
-            personalEmail: personalEmailInput.value,
-            businessEmail: emailInput.value,
-            businessNumber: phoneInput.value,
-            personalContact: personalPhoneInput.value,
-            profileType: selectedCVType,
-            profileStatus: "active",
-            LIStatus: true,
-            LIRejectionReason: "",
-            profileHTML: responseDiv.innerHTML,
-            resourcerId: userId,
-            roleId: selectedRoleId
-        }
+          profile_link: url ? url : public_rec_url ? public_rec_url : "",
+          personalEmail: personalEmailInput.value,
+          businessEmail: emailInput.value,
+          businessNumber: phoneInput.value,
+          personalContact: personalPhoneInput.value,
+          profileType: selectedCVType,
+          profileStatus: "active",
+          LIStatus: true,
+          LIRejectionReason: "",
+          profileHTML: responseDiv.innerHTML,
+          resourcerId: userId,
+          roleId: selectedRoleId,
+        };
 
         fetch(`${crm_api_url}/addDataToLIProfile`, {
             method: 'POST',
