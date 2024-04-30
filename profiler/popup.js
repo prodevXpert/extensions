@@ -4,36 +4,51 @@ document.addEventListener("DOMContentLoaded", function () {
   const loginForm = document.getElementById("login-form");
   const scraperContent = document.getElementById("scraper-content");
   const loginError = document.getElementById("login-error");
+  let fullName = "";
   // const logoutButton = document.getElementById('logout-button');
   let selectedRoleData = null;
   let selectedRoleId = null;
-  const scrapingURL = "https://864245efd9fdd49e8c8c5b2d1d6493d7.loophole.site";
+  const scrapingURL = "https://4eb746cf639325fac63e747eb3c441bd.loophole.site";
   const crm_api_url =
-    "https://745a-182-176-99-238.ngrok-free.app/api/extension";
+    "https://74d5-182-176-99-238.ngrok-free.app/api/extension";
   loginForm.style.display = "block"; // Show login form initially
   scraperContent.style.display = "none"; // Hide scraper content initially
   let currentUrl = null;
   let public_rec_url = null;
 
+  // check for selectedRoleId in local storage
+  const savedSelectedRoleId = localStorage.getItem("selectedRoleId");
+  selectedRoleId = savedSelectedRoleId ? savedSelectedRoleId : null;
   const roleSelected = document.getElementById("roleSelected");
+  const currentCompany = document.getElementById("current-company");
+  const currentTitle = document.getElementById("current-title");
+
+  // ............................................................................................ Functions ............................................................................................ //
+
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    const currentTab = tabs[0];
+    currentUrl = currentTab.url;
+    urlDisplay.textContent = "Profile URL: " + currentUrl;
+  });
   // gbet role options from local storage
   const savedRoleOptions = localStorage.getItem("roleOptions");
   roleSelected.innerHTML = savedRoleOptions
     ? `${savedRoleOptions}`
     : "No role selected";
   roleSelected.style.display = "block";
-  // // // prevent copy paste
-  // document.addEventListener('copy', function (e) {
-  //     e.preventDefault();
-  // });
-  // // prevent right click
-  // document.addEventListener('contextmenu', function (e) {
-  //     e.preventDefault();
-  // });
-  // // prevent selection of text
-  // document.addEventListener('selectstart', function (e) {
-  //     e.preventDefault();
-  // });
+
+//   // // prevent copy paste
+//   document.addEventListener("copy", function (e) {
+//     e.preventDefault();
+//   });
+//   // prevent right click
+//   document.addEventListener("contextmenu", function (e) {
+//     e.preventDefault();
+//   });
+//   // prevent selection of text
+//   document.addEventListener("selectstart", function (e) {
+//     e.preventDefault();
+//   });
 
   // if user is already logged in, show scraper content
   const userId = parseInt(localStorage.getItem("userId"));
@@ -103,6 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
           // set fontsize
           roleSelectedDiv.style.fontSize = "11px";
           selectedRoleId = selectedRoleData?.id;
+          localStorage.setItem("selectedRoleId", selectedRoleData?.id);
 
           // Update localStorage with the selected role
           localStorage.setItem("roleOptions", selectedRole);
@@ -129,7 +145,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
 
-  console.log("hjsjfbsdk", selectedRoleId);
   // Login function
   async function performLogin(username, password) {
     // Call login API
@@ -194,6 +209,7 @@ document.addEventListener("DOMContentLoaded", function () {
           // set fontsize
           roleSelectedDiv.style.fontSize = "11px";
           selectedRoleId = selectedRoleData?.id;
+          localStorage.setItem("selectedRoleId", selectedRoleData?.id);
 
           // Update localStorage with the selected role
           localStorage.setItem("roleOptions", selectedRole);
@@ -235,29 +251,30 @@ document.addEventListener("DOMContentLoaded", function () {
   const publicprofile = document.getElementById("public-profile");
   //my code akash
   const moveTocrm = document.getElementById("download-button");
-  const closeButton = document.getElementById("close-button");
+  //   const closeButton = document.getElementById("close-button");
   const responseDiv = document.getElementById("response");
   const emailInput = document.getElementById("business-email"); // Updated
   const phoneInput = document.getElementById("business-phone"); // Updated
   const personalEmailInput = document.getElementById("personal-email");
   const personalPhoneInput = document.getElementById("personal-phone");
-  const workEmailInput = document.getElementById("work-email");
-  const workPhoneInput = document.getElementById("work-phone");
+  //   const workEmailInput = document.getElementById("work-email");
+  //   const workPhoneInput = document.getElementById("work-phone");
 
   let fileName = null;
   // Function to generate CV HTML from API response data
   function generateCV_for_rec(profileData) {
     fileName = profileData.name;
+    fullName = profileData.name;
+    currentCompany.innerHTML = profileData.currentCompany;
+    currentTitle.innerHTML = profileData.currentJobRole;
     public_rec_url = profileData.public_profile_url;
     let html = `
             <div class="cv">
                 <h2>${profileData.name}</h2>
-                <p><strong>Email (Business):</strong> ${emailInput.value}</p>
-                <p><strong>Phone (Business):</strong> ${phoneInput.value}</p>
-                <p><strong>Email (Personal):</strong> ${personalEmailInput.value}</p>
-                <p><strong>Phone (Personal):</strong> ${personalPhoneInput.value}</p>
-                <p><strong>Email (Work):</strong> ${workEmailInput.value}</p>
-                <p><strong>Phone (Work):</strong> ${workPhoneInput.value}</p>
+                <p><strong>Email (Business):</strong> ${emailInput?.value}</p>
+                <p><strong>Phone (Business):</strong> ${phoneInput?.value}</p>
+                <p><strong>Email (Personal):</strong> ${personalEmailInput?.value}</p>
+                <p><strong>Phone (Personal):</strong> ${personalPhoneInput?.value}</p>
                 <p><strong>Location:</strong> ${profileData?.location}</p>
                 <p><strong>Headlines:</strong> ${profileData?.headlines}</p>
                 <p><strong>Public Profile URL:</strong> ${profileData?.public_profile_url}</p>
@@ -268,13 +285,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 <h3>Experience</h3>
                 <ul>
         `;
-        profileData.experience.forEach((experience, index) => {
-            html += `
+    profileData.experience.forEach((experience) => {
+      html += `
                 <li>
-                    <strong>${experience[index]}</strong> - 
+                    <strong>${experience}</strong> 
                 </li>
             `;
-        });
+    });
 
     html += `
                 </ul>
@@ -285,9 +302,7 @@ document.addEventListener("DOMContentLoaded", function () {
     profileData.Education.forEach((education) => {
       html += `
                 <li>
-                    <strong>${education[0]}</strong> -
-                    ${education[1]} (${education[2]}) (${education[3]}) (${education[4]})
-                </li>
+                    <strong>${education}</strong>
             `;
     });
 
@@ -301,15 +316,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function generateCV_for_pub(profileData) {
     fileName = profileData.name;
+    fullName = profileData.name;
+    currentCompany.innerHTML = profileData.currentCompany;
+    currentTitle.innerHTML = profileData.currentJobRole;
     // <p><strong>Email (Work):</strong> ${workEmailInput.value}</p>
     // <p><strong>Phone (Work):</strong> ${workPhoneInput.value}</p>
     let html = `
             <div class="cv">
                 <h2>${profileData.name}</h2>
-                <p><strong>Email (Business):</strong> ${emailInput.value}</p>
-                <p><strong>Phone (Business):</strong> ${phoneInput.value}</p>
-                <p><strong>Email (Personal):</strong> ${personalEmailInput.value}</p>
-                <p><strong>Phone (Personal):</strong> ${personalPhoneInput.value}</p>
+                <p><strong>Email (Business):</strong> ${emailInput?.value}</p>
+                <p><strong>Phone (Business):</strong> ${phoneInput?.value}</p>
+                <p><strong>Email (Personal):</strong> ${personalEmailInput?.value}</p>
+                <p><strong>Phone (Personal):</strong> ${personalPhoneInput?.value}</p>
                 <p><strong>Location:</strong> ${profileData?.location}</p>
                 <p><strong>Headlines:</strong> ${profileData?.headlines}</p>
                 <p><strong>About:</strong></p>
@@ -317,10 +335,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 <h3>Experience</h3>
                 <ul>
         `;
-    profileData?.experience.forEach((experience, index) => {
+    profileData?.experience.forEach((experience) => {
       html += `
                 <li>
-                    <strong>${experience[index]}</strong> -
+                    <strong>${experience}</strong> 
                 </li>
             `;
     });
@@ -334,8 +352,7 @@ document.addEventListener("DOMContentLoaded", function () {
     profileData.Education.forEach((education) => {
       html += `
                 <li>
-                    <strong>${education[0]}</strong> -
-                    ${education[1]} (${education[2]}) (${education[3]})
+                    <strong>${education}</strong>
                 </li>
             `;
     });
@@ -349,78 +366,73 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Function to check if the URL is a valid LinkedIn profile URL
-  function isValidLinkedInUrl(url) {
-    return url.includes("linkedin.com");
-  }
+    function isValidLinkedInUrl(url) {
+      return url.includes("linkedin.com");
+    }
 
   // Function to validate email
-  function validateEmail(email) {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  }
+  //   function validateEmail(email) {
+  //     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //     return regex.test(email);
+  //   }
 
   // Function to download HTML content as PDF
-  function downloadPDF(cvHtml) {
-    const blob = new Blob([cvHtml], { type: "text/html" }); // Set type to 'text/html'
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = fileName + ".html"; // Change extension to '.html'
-    document.body.appendChild(a);
-    a.click();
+  //   function downloadPDF(cvHtml) {
+  //     const blob = new Blob([cvHtml], { type: "text/html" }); // Set type to 'text/html'
+  //     const url = URL.createObjectURL(blob);
+  //     const a = document.createElement("a");
+  //     a.href = url;
+  //     a.download = fileName + ".html"; // Change extension to '.html'
+  //     document.body.appendChild(a);
+  //     a.click();
 
-    // Cleanup
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    }, 0);
-  }
+  //     // Cleanup
+  //     setTimeout(() => {
+  //       URL.revokeObjectURL(url);
+  //       document.body.removeChild(a);
+  //     }, 0);
+  //   }
 
   // Hide download button until API response is received
   moveTocrm.style.display = "none";
 
   fetchButton.addEventListener("click", function () {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      const currentTab = tabs[0];
-      const currentUrl = currentTab.url;
-      urlDisplay.textContent = "Profile URL: " + currentUrl;
+    alert(currentUrl);
+    // // Check if the URL is a valid LinkedIn profile URL
+    // if (!isValidLinkedInUrl(currentUrl)) {
+    //     responseDiv.innerText = 'Error: This is not a valid LinkedIn profile URL.';
+    //     return;
+    // }
 
-      // // Check if the URL is a valid LinkedIn profile URL
-      // if (!isValidLinkedInUrl(currentUrl)) {
-      //     responseDiv.innerText = 'Error: This is not a valid LinkedIn profile URL.';
-      //     return;
-      // }
+    // const email = emailInput.value.trim();
+    // const phone = phoneInput.value.trim();
 
-      // const email = emailInput.value.trim();
-      // const phone = phoneInput.value.trim();
+    // if (!validateEmail(email)) {
+    //     responseDiv.innerText = 'Error: Please enter a valid email address.';
+    //     return;
+    // }
 
-      // if (!validateEmail(email)) {
-      //     responseDiv.innerText = 'Error: Please enter a valid email address.';
-      //     return;
-      // }
-
-      fetch(`${scrapingURL}/linkedinRecruiter`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url: currentUrl }),
+    fetch(`${scrapingURL}/linkedinRecruiter`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url: currentUrl }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
       })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("Network response was not ok");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          const cvHtml = generateCV_for_rec(data);
-          responseDiv.innerHTML = cvHtml;
-          moveTocrm.style.display = "inline-block"; // Show download button
-        })
-        .catch((error) => {
-          responseDiv.innerText = "Error: " + error.message;
-        });
-    });
+      .then((data) => {
+        const cvHtml = generateCV_for_rec(data);
+        responseDiv.innerHTML = cvHtml;
+        moveTocrm.style.display = "inline-block"; // Show download button
+      })
+      .catch((error) => {
+        responseDiv.innerText = "Error in scraping API: " + error.message;
+      });
   });
 
   // my code akash
@@ -433,20 +445,20 @@ document.addEventListener("DOMContentLoaded", function () {
       currentUrl = currentTab.url;
       urlDisplay.textContent = "Profile URL: " + currentUrl;
 
-      // Check if the URL is a valid LinkedIn profile URL
-      if (!isValidLinkedInUrl(currentUrl)) {
-        responseDiv.innerText =
-          "Error: This is not a valid LinkedIn profile URL.";
-        return;
-      }
+      //   // Check if the URL is a valid LinkedIn profile URL
+        if (!isValidLinkedInUrl(currentUrl)) {
+          responseDiv.innerText =
+            "Error: This is not a valid LinkedIn profile URL.";
+          return;
+        }
 
-      const email = emailInput.value.trim();
-      const phone = phoneInput.value.trim();
+      //   const email = emailInput.value.trim();
+      //   const phone = phoneInput.value.trim();
 
-      if (!validateEmail(email)) {
-        responseDiv.innerText = "Error: Please enter a valid email address.";
-        return;
-      }
+      //   if (!validateEmail(email)) {
+      //     responseDiv.innerText = "Error: Please enter a valid email address.";
+      //     return;
+      //   }
 
       fetch(`${scrapingURL}/linkedinPublic`, {
         method: "POST",
@@ -485,14 +497,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectedCVType = cvType.options[cvType.selectedIndex].value;
     const url = currentUrl;
     const payload = {
-      profile_link: url ? url : public_rec_url ? public_rec_url : "",
+      profile_link: public_rec_url ? public_rec_url : url ? url : "",
       personalEmail: personalEmailInput.value,
+      fullName: fullName,
       businessEmail: emailInput.value,
       businessNumber: phoneInput.value,
       personalContact: personalPhoneInput.value,
       profileType: selectedCVType,
       profileStatus: "active",
       LIStatus: true,
+      currentCompany: currentCompany?.innerText,
+      currentTitle: currentTitle?.innerText,
       LIRejectionReason: "",
       profileHTML: responseDiv.innerHTML,
       resourcerId: userId,
