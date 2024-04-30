@@ -397,7 +397,6 @@ document.addEventListener("DOMContentLoaded", function () {
   moveTocrm.style.display = "none";
 
   fetchButton.addEventListener("click", function () {
-    alert(currentUrl);
     // // Check if the URL is a valid LinkedIn profile URL
     // if (!isValidLinkedInUrl(currentUrl)) {
     //     responseDiv.innerText = 'Error: This is not a valid LinkedIn profile URL.';
