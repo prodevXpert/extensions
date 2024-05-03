@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // const logoutButton = document.getElementById('logout-button');
   let selectedRoleData = null;
   let selectedRoleId = null;
-  const scrapingURL = "https://4eb746cf639325fac63e747eb3c441bd.loophole.site";
+  const scrapingURL = "https://7cb5c95f11b10eba092510968890f4c4.loophole.site";
   const crm_api_url =
     "https://74d5-182-176-99-238.ngrok-free.app/api/extension";
   loginForm.style.display = "block"; // Show login form initially
@@ -37,18 +37,18 @@ document.addEventListener("DOMContentLoaded", function () {
     : "No role selected";
   roleSelected.style.display = "block";
 
-//   // // prevent copy paste
-//   document.addEventListener("copy", function (e) {
-//     e.preventDefault();
-//   });
-//   // prevent right click
-//   document.addEventListener("contextmenu", function (e) {
-//     e.preventDefault();
-//   });
-//   // prevent selection of text
-//   document.addEventListener("selectstart", function (e) {
-//     e.preventDefault();
-//   });
+  // // prevent copy paste
+  document.addEventListener("copy", function (e) {
+    e.preventDefault();
+  });
+  // prevent right click
+  document.addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+  });
+  // prevent selection of text
+  document.addEventListener("selectstart", function (e) {
+    e.preventDefault();
+  });
 
   // if user is already logged in, show scraper content
   const userId = parseInt(localStorage.getItem("userId"));
@@ -263,6 +263,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let fileName = null;
   // Function to generate CV HTML from API response data
   function generateCV_for_rec(profileData) {
+    console.log("hjsgfsdgfsdf",profileData)
     fileName = profileData.name;
     fullName = profileData.name;
     currentCompany.innerHTML = profileData.currentCompany;
@@ -398,10 +399,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
   fetchButton.addEventListener("click", function () {
     // // Check if the URL is a valid LinkedIn profile URL
-    // if (!isValidLinkedInUrl(currentUrl)) {
-    //     responseDiv.innerText = 'Error: This is not a valid LinkedIn profile URL.';
-    //     return;
-    // }
+    if (!isValidLinkedInUrl(currentUrl)) {
+        responseDiv.innerText = 'Error: This is not a valid LinkedIn profile URL.';
+        return;
+    }
 
     // const email = emailInput.value.trim();
     // const phone = phoneInput.value.trim();
