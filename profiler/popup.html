@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UProfiler</title>
+  <!-- <link rel="stylesheet" href="popup.css"> -->
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -31,16 +32,56 @@
       background-color: #0056b3;
     }
 
+    /* make login button align center */
+    #login-button {
+      display: block;
+      margin: 0 auto;
+    }
+
     pre {
       white-space: pre-wrap;
     }
 
-    input[type="text"] {
+    /* type can be text or password */
+    input[type="text" i], input[type="password" i] {
       margin-bottom: 10px;
       width: 100%;
+      height: 50px;
       padding: 5px;
       box-sizing: border-box;
+      border-radius: 10px;
     }
+    .input-container {
+    position: relative;
+  }
+  
+  .input-container input {
+    padding-right: 30px; /* Adjust according to the width of your icon */
+  }
+  
+  .input-container .icon {
+    position: absolute;
+    top: 50%;
+    right: 15px; /* Adjust the positioning of the icon */
+    transform: translateY(-50%);
+    cursor: pointer;
+    /* pointer-events: none; Ensure the icon doesn't interfere with input focus */
+  }
+
+  /* hover */
+  .input-container .icon:hover {
+    color: #007bff;
+    background-color: #0056b3;
+  }
+
+  /* cvType design */
+  select {
+    width: 100%;
+    height: 50px;
+    padding: 5px;
+    box-sizing: border-box;
+    border-radius: 10px;
+  }
   </style>
 </head>
 
@@ -58,17 +99,21 @@
 
   <div id="scraper-content" style="display: none;">
     <!-- Add Logout button -->
-    <!-- <button id="logout-button">Logout</button> -->
+    <button id="logout-button">Logout</button>
     <!-- create a div with id role-details -->
+    <button id="refresh">Refresh</button>
     <br></br>
-    <div id="dvContainer"></div>
     <br />
+    <div id="role-details">
+      <h2>Selected Role Details</h2>
+    </div>
     <div id="roleSelected" style="display: none;"></div>
     <div id="current-company" style="display: none;">Current Company</div>
     <div id="current-title" style="display: none;">Current Title: </div>
     <br></br>
     <!-- Add Drop dow for selecteing wether CV is open To work or simple -->
     <select id="cvType">
+      <option value="select">Select CV Type</option>
       <option value="openToWork">Open To Work</option>
       <option value="simple">Simple</option>
     </select>
@@ -77,19 +122,29 @@
       style="border: 1px solid; border-radius: 5px; background-color: #0056b3; color: #fff; padding: 15px;">
     </div>
     <div id="input-fields">
-      <input type="text" id="personal-email" placeholder="Personal Email">
-      <input type="text" id="personal-phone" placeholder="Personal Phone Number">
-      <input type="text" id="business-email" placeholder="Business Email" required>
-      <input type="text" id="business-phone" placeholder="Business Phone Number">
+      <div class="input-container">
+        <input type="text" id="personal-email" placeholder="Personal Email">
+        <!-- <span class="icon">+</span> -->
+      </div>
+      <div class="input-container">
+        <input type="text" id="personal-phone" placeholder="Personal Phone Number">
+        <!-- <span class="icon">+</span> -->
+      </div>
+      <div class="input-container">
+        <input type="text" id="business-email" placeholder="Business Email" required>
+        <!-- <span class="icon">+</span> -->
+      </div>
+      <div class="input-container">
+        <input type="text" id="business-phone" placeholder="Business Phone Number">
+        <!-- <span class="icon">+</span> -->
+      </div>
       <!-- <input type="text" id="work-email" placeholder="Work Email"> -->
       <!-- <input type="text" id="work-phone" placeholder="Work Phone Number"> -->
     </div>
 
 
     <button id="fetch-button">Recruiter Profile</button>
-    <!-- my code akash -->
     <button id="public-profile">Public Profile</button>
-    <!-- my code akash -->
     <br></br>
     <button id="download-button" class="p4">Move to CRM</button>
     <div id="response"></div>
