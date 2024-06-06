@@ -4,13 +4,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const loginForm = document.getElementById("login-form");
   const scraperContent = document.getElementById("scraper-content");
   const loginError = document.getElementById("login-error");
+  const refreshButton = document.getElementById("refresh");
   let fullName = "";
-  // const logoutButton = document.getElementById('logout-button');
-  let selectedRoleData = null;
-  let selectedRoleId = null;
-  const scrapingURL = "https://7cb5c95f11b10eba092510968890f4c4.loophole.site";
+  const logoutButton = document.getElementById("logout-button");
+  const scrapingURL = "https://0a41f191ffa4e34062437f55b9eb7b78.loophole.site";
+  let roleId = null;
   const crm_api_url =
-    "https://74d5-182-176-99-238.ngrok-free.app/api/extension";
+    "https://e6c7-182-176-99-238.ngrok-free.app/api/extension";
   loginForm.style.display = "block"; // Show login form initially
   scraperContent.style.display = "none"; // Hide scraper content initially
   let currentUrl = null;
@@ -30,25 +30,19 @@ document.addEventListener("DOMContentLoaded", function () {
     currentUrl = currentTab.url;
     urlDisplay.textContent = "Profile URL: " + currentUrl;
   });
-  // gbet role options from local storage
-  const savedRoleOptions = localStorage.getItem("roleOptions");
-  roleSelected.innerHTML = savedRoleOptions
-    ? `${savedRoleOptions}`
-    : "No role selected";
-  roleSelected.style.display = "block";
 
-  // // prevent copy paste
-  document.addEventListener("copy", function (e) {
-    e.preventDefault();
-  });
-  // prevent right click
-  document.addEventListener("contextmenu", function (e) {
-    e.preventDefault();
-  });
-  // prevent selection of text
-  document.addEventListener("selectstart", function (e) {
-    e.preventDefault();
-  });
+  // // // prevent copy paste
+  // document.addEventListener("copy", function (e) {
+  //   e.preventDefault();
+  // });
+  // // prevent right click
+  // document.addEventListener("contextmenu", function (e) {
+  //   e.preventDefault();
+  // });
+  // // prevent selection of text
+  // document.addEventListener("selectstart", function (e) {
+  //   e.preventDefault();
+  // });
 
   // if user is already logged in, show scraper content
   const userId = parseInt(localStorage.getItem("userId"));
@@ -70,73 +64,38 @@ document.addEventListener("DOMContentLoaded", function () {
         return response.json();
       })
       .then((data) => {
-        const roleDetailsContainer = document.getElementById("dvContainer");
+        roleSelected.innerText =
+          data.newRoles[0].clientNumber +
+          " - " +
+          data.newRoles[0].title +
+          " - " +
+          data.newRoles[0].location;
+        roleSelected.style.display = "block";
+        roleSelected.style.border = "1px solid #000";
+        roleSelected.style.padding = "10px";
+        roleSelected.style.backgroundColor = "blue";
+        roleSelected.style.color = "#FFFFFF";
+        roleSelected.style.borderRadius = "5px";
+        roleSelected.style.margin = "10px";
 
-        // Clear any existing content in the container
-        roleDetailsContainer.innerHTML = "";
-
-        // Populate the select element with role options
-        var roleOptions = [];
-        data.newRoles.forEach((role) => {
-          roleOptions.push(role);
-        });
-
-        // Create a DropDown element
-        var dropdown = document.createElement("SELECT");
-
-        // Add options to the DropDown element
-        roleOptions.forEach((role) => {
-          var option = document.createElement("option");
-          option.innerHTML =
-            role.clientNumber + " - " + role.title + " - " + role.location;
-          localStorage.setItem(
-            "roleOptions",
-            role.clientNumber + " - " + role.title + " - " + role.location
-          );
-          option.value = role.title;
-          dropdown.options.add(option);
-        });
-
-        // Reference the container element
-        var container = document.getElementById("dvContainer");
-
-        // add droptdownlist to div
-        var div = document.createElement("div");
-        div.appendChild(dropdown);
-        container.appendChild(div);
-
-        // Add event listener to the dropdown
-        // Add event listener to the dropdown
-        dropdown.addEventListener("change", async function () {
-          const selectedRole = dropdown.options[dropdown.selectedIndex].value;
-          selectedRoleData = roleOptions.find(
-            (role) => role?.title === selectedRole
-          );
-          // make roleSelected div visible and populate the data
-          const roleSelectedDiv = document.getElementById("roleSelected");
-          roleSelectedDiv.style.display = "block";
-          // set fontsize
-          roleSelectedDiv.style.fontSize = "11px";
-          selectedRoleId = selectedRoleData?.id;
-          localStorage.setItem("selectedRoleId", selectedRoleData?.id);
-
-          // Update localStorage with the selected role
-          localStorage.setItem("roleOptions", selectedRole);
-
-          // Update the content of roleSelectedDiv
-          roleSelectedDiv.innerHTML = selectedRole
-            ? selectedRole
-            : "No role selected";
-        });
+        roleId = data.newRoles[0].id;
       })
-      .catch((error) => {});
+      .catch((error) => {
+        console.error("Error:", error);
+        // create notification
+        chrome.notifications.create({
+          type: "basic",
+          iconUrl: "icon.png",
+          title: "Error",
+          message: "Error in fetching roles",
+        });
+      });
   }
   document
     .getElementById("login-button")
     .addEventListener("click", async () => {
       const username = document.getElementById("username").value;
       const password = document.getElementById("password").value;
-
       // Perform login actions
       const isLoggedIn = await performLogin(username, password);
       if (isLoggedIn) {
@@ -144,7 +103,19 @@ document.addEventListener("DOMContentLoaded", function () {
         scraperContent.style.display = "block"; // Show scraper content
       }
     });
-
+  // perform login on button click
+  document
+    .getElementById("login-button")
+    .addEventListener("click", async () => {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      // Perform login actions
+      const isLoggedIn = await performLogin(username, password);
+      if (isLoggedIn) {
+        loginForm.style.display = "none"; // Hide login
+        scraperContent.style.display = "block"; // Show scraper content
+      }
+    });
   // Login function
   async function performLogin(username, password) {
     // Call login API
@@ -161,68 +132,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const data = await response.json();
       if (response.ok) {
-        const roleDetailsContainer = document.getElementById("dvContainer");
-
-        // Clear any existing content in the container
-        roleDetailsContainer.innerHTML = "";
-
-        // Populate the select element with role options
-        var roleOptions = [];
-        data.newRoles.forEach((role) => {
-          roleOptions.push(role);
-        });
-
-        // Create a DropDown element
-        var dropdown = document.createElement("SELECT");
-        // save the role options in local storage
-        // Add options to the DropDown element
-        roleOptions.forEach((role) => {
-          var option = document.createElement("option");
-          option.innerHTML =
-            role.clientNumber + " - " + role.title + " - " + role.location;
-          localStorage.setItem(
-            "roleOptions",
-            role.clientNumber + " - " + role.title + " - " + role.location
-          );
-          option.value = role.title;
-          dropdown.options.add(option);
-        });
-
-        // Reference the container element
-        var container = document.getElementById("dvContainer");
-
-        // add droptdownlist to div
-        var div = document.createElement("div");
-        div.appendChild(dropdown);
-        container.appendChild(div);
-
-        // Add event listener to the dropdown
-        // Add event listener to the dropdown
-        dropdown.addEventListener("change", async function () {
-          const selectedRole = dropdown.options[dropdown.selectedIndex].value;
-          selectedRoleData = roleOptions.find(
-            (role) => role?.title === selectedRole
-          );
-          // make roleSelected div visible and populate the data
-          const roleSelectedDiv = document.getElementById("roleSelected");
-          roleSelectedDiv.style.display = "block";
-          // set fontsize
-          roleSelectedDiv.style.fontSize = "11px";
-          selectedRoleId = selectedRoleData?.id;
-          localStorage.setItem("selectedRoleId", selectedRoleData?.id);
-
-          // Update localStorage with the selected role
-          localStorage.setItem("roleOptions", selectedRole);
-
-          // Update the content of roleSelectedDiv
-          roleSelectedDiv.innerHTML = selectedRole
-            ? selectedRole
-            : "No role selected";
-        });
-
         // HTTP status code is in the range 200-299
         // set userid in local storage
         localStorage.setItem("userId", data.userId);
+        roleSelected.innerText =
+          data.newRoles[0].clientNumber +
+          " - " +
+          data.newRoles[0].title +
+          " - " +
+          data.newRoles[0].location;
+        roleSelected.style.display = "block";
+        roleSelected.style.border = "1px solid #000";
+        roleSelected.style.padding = "10px";
+        roleSelected.style.backgroundColor = "#f0f0f0";
+        roleSelected.style.color = "#000";
+        roleSelected.style.borderRadius = "5px";
+        roleId = data.newRoles[0].id;
         return true;
       } else {
         // HTTP status code is not in the success range
@@ -238,13 +163,32 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // // implement logout functionality
-  // logoutButton.addEventListener('click', () => {
-  //     localStorage.removeItem('userId');
-  //     loginForm.style.display = 'block'; // Show login form
-  //     scraperContent.style.display = 'none'; // Hide scraper content
-  // });
+  // implement logout functionality
+  logoutButton.addEventListener("click", () => {
+    localStorage.removeItem("userId");
+    loginForm.style.display = "block"; // Show login form
+    scraperContent.style.display = "none"; // Hide scraper content
+  });
 
+  // refresh button
+  refreshButton.addEventListener("click", () => {
+    // fetch the roles again and update the roleSelected div
+    fetch(`${crm_api_url}/getInProgressRolesByUserId`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+      });
+  });
   const urlDisplay = document.getElementById("url-display");
   const fetchButton = document.getElementById("fetch-button");
   //my code akash ahmad
@@ -263,7 +207,7 @@ document.addEventListener("DOMContentLoaded", function () {
   let fileName = null;
   // Function to generate CV HTML from API response data
   function generateCV_for_rec(profileData) {
-    console.log("hjsgfsdgfsdf",profileData)
+    console.log("hjsgfsdgfsdf", profileData);
     fileName = profileData.name;
     fullName = profileData.name;
     currentCompany.innerHTML = profileData.currentCompany;
@@ -286,44 +230,37 @@ document.addEventListener("DOMContentLoaded", function () {
                 <h3>Experience</h3>
                 <ul>
         `;
-    profileData.experience.forEach((experience) => {
-      html += `
-                <li>
+    profileData?.experience?.forEach((experience) => {
+      html += `<li>
                     <strong>${experience}</strong> 
-                </li>
-            `;
+                </li>`;
     });
 
-    html += `
-                </ul>
+    html += `</ul>
                 <h3>Education</h3>
-                <ul>
-        `;
+              <ul>`;
 
-    profileData.Education.forEach((education) => {
-      html += `
-                <li>
+    profileData?.Education?.forEach((education) => {
+      html += `<li>
                     <strong>${education}</strong>
-            `;
+                </li>`;
     });
 
-    html += `
-                </ul>
-            </div>
-        `;
+    html += `</ul>
+            </div>`;
 
     return html;
   }
 
   function generateCV_for_pub(profileData) {
+    console.log("kjsfsdfdsf", profileData);
     fileName = profileData.name;
     fullName = profileData.name;
     currentCompany.innerHTML = profileData.currentCompany;
     currentTitle.innerHTML = profileData.currentJobRole;
     // <p><strong>Email (Work):</strong> ${workEmailInput.value}</p>
     // <p><strong>Phone (Work):</strong> ${workPhoneInput.value}</p>
-    let html = `
-            <div class="cv">
+    let html = `<div class="cv">
                 <h2>${profileData.name}</h2>
                 <p><strong>Email (Business):</strong> ${emailInput?.value}</p>
                 <p><strong>Phone (Business):</strong> ${phoneInput?.value}</p>
@@ -334,42 +271,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p><strong>About:</strong></p>
                 <p>${profileData?.about}</p>
                 <h3>Experience</h3>
-                <ul>
-        `;
-    profileData?.experience.forEach((experience) => {
-      html += `
-                <li>
+                <ul>`;
+    profileData?.experience?.forEach((experience) => {
+      html += `<li>
                     <strong>${experience}</strong> 
-                </li>
-            `;
+                </li>`;
     });
 
-    html += `
-                </ul>
+    html += `</ul>
                 <h3>Education</h3>
-                <ul>
-        `;
+                <ul>`;
 
-    profileData.Education.forEach((education) => {
-      html += `
-                <li>
+    profileData?.Education?.forEach((education) => {
+      html += `<li>
                     <strong>${education}</strong>
-                </li>
-            `;
+                </li>`;
     });
 
-    html += `
-                </ul>
-            </div>
-        `;
+    html += `</ul>
+            </div>`;
 
     return html;
   }
 
   // Function to check if the URL is a valid LinkedIn profile URL
-    function isValidLinkedInUrl(url) {
-      return url.includes("linkedin.com");
-    }
+  function isValidLinkedInUrl(url) {
+    return url.includes("linkedin.com");
+  }
 
   // Function to validate email
   //   function validateEmail(email) {
@@ -400,8 +328,9 @@ document.addEventListener("DOMContentLoaded", function () {
   fetchButton.addEventListener("click", function () {
     // // Check if the URL is a valid LinkedIn profile URL
     if (!isValidLinkedInUrl(currentUrl)) {
-        responseDiv.innerText = 'Error: This is not a valid LinkedIn profile URL.';
-        return;
+      responseDiv.innerText =
+        "Error: This is not a valid LinkedIn profile URL.";
+      return;
     }
 
     // const email = emailInput.value.trim();
@@ -445,12 +374,12 @@ document.addEventListener("DOMContentLoaded", function () {
       currentUrl = currentTab.url;
       urlDisplay.textContent = "Profile URL: " + currentUrl;
 
-      //   // Check if the URL is a valid LinkedIn profile URL
-        if (!isValidLinkedInUrl(currentUrl)) {
-          responseDiv.innerText =
-            "Error: This is not a valid LinkedIn profile URL.";
-          return;
-        }
+      // Check if the URL is a valid LinkedIn profile URL
+      if (!isValidLinkedInUrl(currentUrl)) {
+        responseDiv.innerText =
+          "Error: This is not a valid LinkedIn profile URL.";
+        return;
+      }
 
       //   const email = emailInput.value.trim();
       //   const phone = phoneInput.value.trim();
@@ -474,6 +403,7 @@ document.addEventListener("DOMContentLoaded", function () {
           return response.json();
         })
         .then((data) => {
+          console.log("data", data);
           const cvHtml = generateCV_for_pub(data);
           responseDiv.innerHTML = cvHtml;
           moveTocrm.style.display = "inline-block"; // Show download button
@@ -488,7 +418,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   moveTocrm.addEventListener("click", function () {
     // post data to server
-    if (selectedRoleId === null) {
+    if (roleId === null) {
       responseDiv.innerText = "Error: Please select a role before proceeding.";
       return;
     }
@@ -511,7 +441,7 @@ document.addEventListener("DOMContentLoaded", function () {
       LIRejectionReason: "",
       profileHTML: responseDiv.innerHTML,
       resourcerId: userId,
-      roleId: selectedRoleId,
+      roleId: roleId,
     };
 
     fetch(`${crm_api_url}/addDataToLIProfile`, {
